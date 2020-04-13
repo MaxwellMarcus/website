@@ -12,14 +12,29 @@
     }
   </style>
   <link rel="icon" type="image/png" href="favcon.png">
+  <script>
+    function place_menu_bar(){
+      if (window.innerWidth < 700){
+        let menuBar = document.getElementsByClassName("MenuBar");
+        let logo = document.getElementsByClassName("Logo");
+        menuBar[0].style.gridTemplateColumns = '1fr';
+        menuBar[0].style.gridTemplateRows = '1fr 1fr';
+        logo[0].style.paddingLeft = window.innerWidth/2-40+'px';
+      }
+      else{
+        let menuBar = document.getElementsByClassName("MenuBar");
+        let logo = document.getElementsByClassName("Logo");
+        menuBar[0].style.gridTemplateColumns = '1fr 1fr';
+        menuBar[0].style.gridTemplateRows = '1fr';
+        logo[0].style.paddingLeft = '50px';
+      }
+    }
+    window.onresize = place_menu_bar;
+</script>
 </head>
 <body>
   <canvas id="Canvas"></canvas>
   <script src="A_Star.js"></script>
-  <script src="ProjectsButton.js"></script>
-  <script src="GamesButton.js"></script>
-  <script src="BlogButton.js"></script>
-  <script src="HomeButton.js"></script>
   <div class="MenuBar">
     <div class="Logo">
       <a href="https://maxmarc.us">
@@ -32,4 +47,7 @@
       <a type='button' class="BlogButton" href="https://maxmarc.us/Blog">Blog</a>
     </div>
   </div>
+  <script>
+  place_menu_bar();
+  </script>
 </body>

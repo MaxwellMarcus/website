@@ -3,12 +3,12 @@
 <head>
   <link rel="stylesheet" href="stylesheet.css">
   <meta charset="utf-8">
-  <title>Max Marcus</title>
+  <title>Max Marcus - A* Algorithm</title>
   <style type="text/css">
     body{
       margin: 0;
       padding:0;
-      overflow: hidden;
+      overflow-x: hidden;
     }
   </style>
   <link rel="icon" type="image/png" href="favcon.png">
@@ -33,8 +33,6 @@
 </script>
 </head>
 <body>
-  <canvas id="Canvas"></canvas>
-  <script src="A_Star.js"></script>
   <div class="MenuBar">
     <div class="Logo">
       <a href="https://maxmarc.us">
@@ -47,7 +45,17 @@
       <a type='button' class="BlogButton" href="https://maxmarc.us/Blog">Blog</a>
     </div>
   </div>
+  <div class="github">
+    <a type='button' href="https://github.com/MaxwellMarcus" class="githubbutton">Github Source Code</a>
+  </div>
   <script>
     place_menu_bar();
-  </script>  
+  </script>
+  <div class="Explanation">
+    <p><span>The A* Pathfinding Algorithm is a method of finding a path from a start node to an end node.&nbsp; A node is an available space that can be used in a path. In the above example everything except walls (the light gray blocks) are nodes. A* starts with a list of nodes that has only the start node in it. Then the algorithm adds the adjacent nodes (not including diagonals in&nbsp;</span><span>the above example) to the list and assigns each of them a score. The score is the length of the path that the nodes are on plus the euclidean distance from the end node. Finally the algorithm sorts the list of nodes based on each node&rsquo;s score (lowest score to highest score). The algorithm then repeats this process, but it expands on the node with the lowest score (also the first node in the list) instead of the start node. The algorithm ends when the end node is the node with the lowest score.</span></p>
+    <p><span>In the above example the expanded nodes are all the nodes that have already added their adjacent nodes to the list.</span></p>
+    <p><span>The expanding nodes are all the nodes that are in the list, but have not yet added their adjacent nodes to the list.</span></p>
+  </div>
+  <canvas id="Canvas"></canvas>
+  <script src="A_Star.js"></script>
 </body>

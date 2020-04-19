@@ -1,4 +1,7 @@
 body{
+  margin: 0;
+  padding:0;
+  overflow: hidden;
   background-color: #333333
 }
 
@@ -54,7 +57,7 @@ body{
 
   text-decoration: none;
 
-  color: #8E8E8E
+  color: #5E5E5E
 }
 
 .ProjectsButton{
@@ -66,7 +69,7 @@ body{
 
   text-decoration: none;
 
-  color: #5E5E5E
+  color: #8E8E8E
 }
 
 .BlogButton:hover{
@@ -79,11 +82,17 @@ body{
   color: #7E7E7E;
 }
 
-.NothingText{
-  font-size: 35px;
-  font-family: sans-serif;
-  font-weight: bolder;
-  color: #6E6E6E;
-  text-align: center;
-  padding-top: 100px
+.ProjectsList{
+  padding-top: 50px;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-bottom: 50px;
+
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.Project{
+  border-style: solid;
+  border-color: #000;
 }

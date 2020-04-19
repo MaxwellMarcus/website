@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lnag = "en">
+<head>
+  <link rel="stylesheet" href="stylesheet.css">
+  <meta charset="utf-8">
+  <title>Max Marcus - Projects</title>
+  <link rel="icon" type="image/png" href="favcon.png">
+  <script>
+    function place_menu_bar(){
+      if (window.innerWidth < 700){
+        let menuBar = document.getElementsByClassName("MenuBar");
+        let logo = document.getElementsByClassName("Logo");
+        menuBar[0].style.gridTemplateColumns = '1fr';
+        menuBar[0].style.gridTemplateRows = '1fr 1fr';
+        logo[0].style.paddingLeft = window.innerWidth/2-40+'px';
+      }
+      else{
+        let menuBar = document.getElementsByClassName("MenuBar");
+        let logo = document.getElementsByClassName("Logo");
+        menuBar[0].style.gridTemplateColumns = '1fr 1fr';
+        menuBar[0].style.gridTemplateRows = '1fr';
+        logo[0].style.paddingLeft = '50px';
+      }
+    }
+    function place_projects(){
+      var width = window.innerWidth-100;
+      var height = window.innerHeight-300;
+      projects_list = document.getElementsByClassName("ProjectsList")[0];
+      projects_list.style.height = height+'px';
+      projects_list.style.width = width+'px';
+      projects = document.getElementsByClassName("Project");
+      let project_width = width/projects.length-15
+      let project_height = height/projects.length-15
+      let img_size = Math.min(project_height,project_width) - 175;
+      for (i=0;i<projects.length;i++){
+        let img = projects[i].querySelector('img');
+        img.style.width = img_size + 'px';
+        img.style.paddingLeft = (project_width-15)/2-(img_size)/2 + 'px';
+        img.style.paddingTop = 25 + 'px';
+
+        projects[i].style.height = project_height + 'px';
+        projects[i].style.width = project_width + 'px';
+        projects[i].style.marginLeft = width/2-project_width/2 + 'px'
+
+
+        let text = projects[i].querySelector('p');
+        text.style.fontWeight = 'bolder';
+        text.style.fontFamily = 'Sans-Serif';
+        text.style.fontSize = '50px';
+        text.style.textAlign = 'center';
+        text.style.paddingTop = '30px';
+      }
+    }
+    function resize(){
+      place_projects();
+      place_menu_bar();
+    }
+    window.onresize = resize;
+  </script>
+</head>
+<body>
+  <div class="MenuBar">
+    <div class="Logo">
+      <a href="https://maxmarc.us">
+          <img src="sweetstuff.png" alt="maxmarc.us" id="GamePageLogo">
+      </a>
+    </div>
+    <div class="MenuButtons">
+      <a type='button' class="ProjectsButton" href="https://maxmarc.us/Projects">Projects</a>
+      <a type='button' class="GamesButton" href="https://maxmarc.us/Games">Games</a>
+      <a type='button' class="BlogButton" href="https://maxmarc.us/Blog">Blog</a>
+    </div>
+  </div>
+  <div class="ProjectsList">
+    <a href='A Star Algorithm' style='display:block;text-decoration:none'>
+      <div class="Project" href='https://maxmarc.us'>
+        <img src="A Star Algorithm/thumbnail.png" alt="A* Algorithm">
+        <p style='color:#000'>A* Algorithm</p>
+      </div>
+    </a>
+  </div>
+  <script>
+    place_menu_bar();
+    place_projects();
+  </script>
+</body>

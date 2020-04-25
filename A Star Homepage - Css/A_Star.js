@@ -188,7 +188,6 @@ function update(){
   c.clearRect(0,0,screen_width,screen_height);
   c.fillStyle = '#333333';
   c.lineWidth = 1
-  c.fillRect(0,0,screen_width,screen_height);
   if (nodes.length > 0){
     if (nodes[0].x != end_node[0] || nodes[0].y != end_node[1]){
       n = nodes[0];
@@ -322,58 +321,6 @@ function update(){
   c.font = 'bolder ' + font_size + 'px Arial';
   c.fillStyle = 'rgba(64,64,64)';
   c.fillText('Welcome',screen_width/2,screen_height/8*3);
-
-  c.beginPath();
-  c.fillStyle = 'red';
-  c.rect(pixel_x/4,screen_height-(pixel_y*6),pixel_x/2,pixel_y/2);
-  c.fill();
-
-  c.textAlign = 'start';
-  c.textBaseline = 'middle'
-  font_size = screen_width/100;
-  c.font = 'bolder ' + font_size + 'px Arial';
-  c.fillStyle = 'rgba(100,100,100)';
-  c.fillText(' - expanded nodes',pixel_x*.75,screen_height-(pixel_y*5.75))
-
-  c.beginPath();
-  c.fillStyle = 'green';
-  c.rect(pixel_x/4,screen_height-(pixel_y*5),pixel_x/2,pixel_y/2);
-  c.fill();
-
-  c.fillStyle = 'rgba(100,100,100)';
-  c.fillText(' - expanding nodes',pixel_x*.75,screen_height-(pixel_y*4.75))
-
-  c.beginPath();
-  c.fillStyle = 'blue';
-  c.rect(pixel_x/4,screen_height-(pixel_y*4),pixel_x/2,pixel_y/2);
-  c.fill();
-
-  c.fillStyle = 'rgba(100,100,100)';
-  c.fillText(' - start node',pixel_x*.75,screen_height-(pixel_y*3.75))
-
-  c.beginPath();
-  c.fillStyle = 'orange';
-  c.rect(pixel_x/4,screen_height-(pixel_y*3),pixel_x/2,pixel_y/2);
-  c.fill();
-
-  c.fillStyle = 'rgba(100,100,100)';
-  c.fillText(' - end node',pixel_x*.75,screen_height-(pixel_y*2.75))
-
-  c.beginPath();
-  c.fillStyle = 'cyan';
-  c.rect(pixel_x/4,screen_height-(pixel_y*2),pixel_x/2,pixel_y/2);
-  c.fill();
-
-  c.fillStyle = 'rgba(100,100,100)';
-  c.fillText(' - path found',pixel_x*.75,screen_height-(pixel_y*1.75))
-
-  c.beginPath();
-  c.fillStyle = 'gray';
-  c.rect(pixel_x/4,screen_height-(pixel_y*1),pixel_x/2,pixel_y/2);
-  c.fill();
-
-  c.fillStyle = 'rgba(100,100,100)';
-  c.fillText(' - walls',pixel_x*.75,screen_height-(pixel_y*.75))
 
   font_size = screen_height/30
   c.font = 'bolder ' + font_size + 'px Arial';

@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" href="favcon.png">
   <script>
     function place_menu_bar(){
-      if (window.innerWidth < 700){
+      if (window.innerWidth < 1000){
         let menuBar = document.getElementsByClassName("MenuBar");
         let logo = document.getElementsByClassName("Logo");
         menuBar[0].style.gridTemplateColumns = '1fr';
@@ -46,12 +46,12 @@
     </div>
   </div>
   <div class="github">
-    <a type='button' href="https://github.com/MaxwellMarcus" class="githubbutton">Github Source Code</a>
+    <a type='button' href="https://github.com/MaxwellMarcus/website/blob/master/Projects%20Page/A%20Star%20Algorithm/A_Star.js" class="githubbutton">Github Source Code</a>
   </div>
   <script>
     place_menu_bar();
   </script>
-  <div class="Explanation">
+  <div class="Explanation" style="color:#CCCCCC">
     <p><span>The A* Pathfinding Algorithm is a method of finding a path from a start node to an end node.&nbsp; A node is an available space that can be used in a path. In the above example everything except walls (the light gray blocks) are nodes. A* starts with a list of nodes that has only the start node in it. Then the algorithm adds the adjacent nodes (not including diagonals in&nbsp;</span><span>the above example) to the list and assigns each of them a score. The score is the length of the path that the nodes are on plus the euclidean distance from the end node. Finally the algorithm sorts the list of nodes based on each node&rsquo;s score (lowest score to highest score). The algorithm then repeats this process, but it expands on the node with the lowest score (also the first node in the list) instead of the start node. The algorithm ends when the end node is the node with the lowest score.</span></p>
     <p><span>In the above example the expanded nodes are all the nodes that have already added their adjacent nodes to the list.</span></p>
     <p><span>The expanding nodes are all the nodes that are in the list, but have not yet added their adjacent nodes to the list.</span></p>

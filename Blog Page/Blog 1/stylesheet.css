@@ -41,7 +41,7 @@ body{
   text-align: center;
 
   text-decoration: none;
-  color: #5E5E5E
+  color: #8E8E8E
 
 }
 
@@ -54,7 +54,7 @@ body{
 
   text-decoration: none;
 
-  color: #8E8E8E
+  color: #5E5E5E
 }
 
 .ProjectsButton{
@@ -79,11 +79,27 @@ body{
   color: #7E7E7E;
 }
 
-.NothingText{
-  font-size: 35px;
+.blogtext{
+  background-color: #444444;
   font-family: sans-serif;
   font-weight: bolder;
-  color: #6E6E6E;
+  width: 70%;
+  margin-left: 10%;
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 20px;
+  padding-bottom: 5vw;
+  margin-bottom: 5%;
+  margin-top: 100px;
+  font-size: 25px;
+  text-indent: 2em;
+}
+
+.blogimg{
+  width:100%;
+}
+
+.title{
+  font-size: 70px;
   text-align: center;
-  padding-top: 100px
 }

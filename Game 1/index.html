@@ -9,8 +9,72 @@
       padding:0;
       overflow: hidden;
     }
+    canvas {
+    image-rendering: optimizeSpeed;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+
+    image-rendering: -o-crisp-edges;
+    image-rendering: optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
+}
   </style>
   <script src="A_Star.js"></script>
+  <img src="imgs/player/wizard_back.png" alt="player" id="wizard back" style='display:none'>
+  <img src="imgs/player/wizard_front.png" alt="player" id="wizard front" style='display:none'>
+  <img src="imgs/player/wizard_left.png" alt="player" id="wizard left" style='display:none'>
+  <img src="imgs/player/wizard_right.png" alt="player" id="wizard right" style='display:none'>
+
+  <img src="imgs/player/feet/wizard_front_feet.png" alt='' id='wizard front feet' style='display:none'>
+  <img src="imgs/player/feet/wizard_back_feet.png" alt='' id='wizard back feet' style='display:none'>
+  <img src="imgs/player/feet/wizard_left_feet.png" alt='' id='wizard left feet' style='display:none'>
+  <img src="imgs/player/feet/wizard_right_feet.png" alt='' id='wizard right feet' style='display:none'>
+
+  <img src="imgs/player/move_animation/wizard_front_animation_1.png" alt="player" id="wizard front 1" style='display:none'>
+  <img src="imgs/player/move_animation/wizard_front_animation_2.png" alt="player" id="wizard front 2" style='display:none'>
+  <img src="imgs/player/move_animation/wizard_back_animation_1.png" alt="player" id="wizard back 1" style='display:none'>
+  <img src="imgs/player/move_animation/wizard_back_animation_2.png" alt="player" id="wizard back 2" style='display:none'>
+  <img src="imgs/player/move_animation/wizard_left_animation_1.png" alt="player" id="wizard left 1" style='display:none'>
+  <img src="imgs/player/move_animation/wizard_left_animation_2.png" alt="player" id="wizard left 2" style='display:none'>
+  <img src="imgs/player/move_animation/wizard_right_animation_1.png" alt="player" id="wizard right 1" style='display:none'>
+  <img src="imgs/player/move_animation/wizard_right_animation_2.png" alt="player" id="wizard right 2" style='display:none'>
+
+  <img src="imgs/player/swing_animation/wizard_front_swing_animation1.png" alt='' id='wizard front swing 1' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_front_swing_animation2.png" alt='' id='wizard front swing 2' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_front_swing_animation3.png" alt='' id='wizard front swing 3' style='display:none'>
+
+  <img src="imgs/player/swing_animation/wizard_back_swing_animation1.png" alt='' id='wizard back swing 1' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_back_swing_animation2.png" alt='' id='wizard back swing 2' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_back_swing_animation3.png" alt='' id='wizard back swing 3' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_back_swing_animation4.png" alt='' id='wizard back swing 4' style='display:none'>
+
+  <img src="imgs/player/swing_animation/wizard_left_swing_animation1.png" alt='' id='wizard left swing 1' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_left_swing_animation2.png" alt='' id='wizard left swing 2' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_left_swing_animation3.png" alt='' id='wizard left swing 3' style='display:none'>
+
+  <img src="imgs/player/swing_animation/wizard_right_swing_animation1.png" alt='' id='wizard right swing 1' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_right_swing_animation2.png" alt='' id='wizard right swing 2' style='display:none'>
+  <img src="imgs/player/swing_animation/wizard_right_swing_animation3.png" alt='' id='wizard right swing 3' style='display:none'>
+
+  <img src="imgs/floor/dungeon_floor.png" alt="" id="dungeon floor" style='display:none'>
+
+  <img src="imgs/wall/DungeonWall.png" alt="" id="Dungeon Wall" style='display:none'>
+
+  <img src="imgs/chest/chest.png" alt="" id="chest" style = 'display:none'>
+
+  <img src="imgs/enemy/mobile/enemyback.png" alt="player" id="enemy back" style='display:none'>
+  <img src="imgs/enemy/mobile/enemyfront.png" alt="player" id="enemy front" style='display:none'>
+  <img src="imgs/enemy/mobile/enemyleft.png" alt="player" id="enemy left" style='display:none'>
+  <img src="imgs/enemy/mobile/enemyright.png" alt="player" id="enemy right" style='display:none'>
+
+  <img src="imgs/enemy/mobile/move_animation/enemyfrontanimation1.png" alt="player" id="enemy front 1" style='display:none'>
+  <img src="imgs/enemy/mobile/move_animation/enemyfrontanimation2.png" alt="player" id="enemy front 2" style='display:none'>
+  <img src="imgs/enemy/mobile/move_animation/enemybackanimation1.png" alt="player" id="enemy back 1" style='display:none'>
+  <img src="imgs/enemy/mobile/move_animation/enemybackanimation2.png" alt="player" id="enemy back 2" style='display:none'>
+  <img src="imgs/enemy/mobile/move_animation/enemyleftanimation1.png" alt="player" id="enemy left 1" style='display:none'>
+  <img src="imgs/enemy/mobile/move_animation/enemyleftanimation2.png" alt="player" id="enemy left 2" style='display:none'>
+  <img src="imgs/enemy/mobile/move_animation/enemyrightanimation1.png" alt="player" id="enemy right 1" style='display:none'>
+  <img src="imgs/enemy/mobile/move_animation/enemyrightanimation2.png" alt="player" id="enemy right 2" style='display:none'>
 </head>
 
 <body>

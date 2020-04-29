@@ -21,6 +21,10 @@ class Player{
     this.x = 0;
     this.y = 0;
 
+    //player size
+    this.width = 50;
+    this.height = 50;
+
     //store where player was
     this.lx = this.x;
     this.ly = this.y;
@@ -43,8 +47,9 @@ class Player{
       y: 0
     };
 
-    //find what room the player is in
+    //find what room the player is in and if it should make more
     for (let x=0;x<rooms.length;x++){
+      //if room is the room the player is in
       if (rooms[x].x == this.room_pos.x && rooms[x].y == this.room_pos.y){
         //remember the room
         this.room = rooms[x]
@@ -62,7 +67,7 @@ class Player{
     }
 
     //amount of money player has
-    this.money = 0;
+    this.money = 100;
 
     //direction the player is facing
     this.dir = 1;
@@ -71,6 +76,31 @@ class Player{
     this.weapons = [new Weapon(1,2,100,true,'Butter Knife')];
     //the weapon the player is currently using
     this.weapon = this.weapons[0];
+
+    //pngs images of player
+    this.images = [[document.getElementById("wizard back 1"),document.getElementById('wizard back 2'),document.getElementById('wizard back'),document.getElementById('wizard back feet'),[document.getElementById('wizard back swing 1'), document.getElementById('wizard back swing 2'), document.getElementById('wizard back swing 3'),document.getElementById('wizard back swing 4')]],
+    [document.getElementById("wizard front 1"),document.getElementById('wizard front 2'),document.getElementById('wizard front'),document.getElementById('wizard front feet'),[document.getElementById('wizard front'), document.getElementById('wizard front swing 1'), document.getElementById('wizard front swing 2'),document.getElementById('wizard front swing 3')]],
+    [document.getElementById("wizard left 1"),document.getElementById('wizard left 2'),document.getElementById('wizard left'),document.getElementById('wizard left feet'),[document.getElementById('wizard left'), document.getElementById('wizard left swing 1'), document.getElementById('wizard left swing 2'),document.getElementById('wizard left swing 3')]],
+    [document.getElementById("wizard right 1"),document.getElementById('wizard right 2'),document.getElementById('wizard right'),document.getElementById('wizard right feet'),[document.getElementById('wizard right'), document.getElementById('wizard right swing 1'), document.getElementById('wizard right swing 2'),document.getElementById('wizard right swing 3')]]];
+
+    //torch swing animation
+    this.arm = 0;
+    this.arm_cooldown = time + 100;
+    //is player swinging
+    this.swinging = false;
+
+    //animating legs
+    this.leg_animation = 0;
+    //only change animation every once in a while
+    this.animation_cooldown = time + 100
+    //if the player is walking
+    this.walking = false;
+
+    //torch flickering
+    this.torch = .2;
+
+    //distance between walls and player hitbox
+    this.margin = 10;
   }
 
   //update the player
@@ -87,23 +117,30 @@ class Player{
     let x = 0;
     let y = 0;
 
+    //if the player is waling
+    this.walking = false;
     //if keys are pressed move the player
     if (keys.includes('w')){
       y += -1;
       this.dir = 1;
+      this.walking = true;
     }
     if (keys.includes('s')){
       y += 1;
       this.dir = 2;
+      this.walking = true;
     }
     if (keys.includes('a')){
       x += -1;
       this.dir = 3;
+      this.walking = true;
     }
     if (keys.includes('d')){
       x += 1;
       this.dir = 4;
+      this.walking = true;
     }
+
 
     //same speed going diagnal
     if (Math.abs(x) > 0 && Math.abs(y) > 0){
@@ -125,30 +162,14 @@ class Player{
     //check if moving into a wall
     for (let i = 0; i < this.room.walls.length; i++){
       //if moving into wall on x axis
-      if (x - 25 < this.room.walls[i].x2 && x + 25 > player.room.walls[i].x1 && this.y - 25 < player.room.walls[i].y2 && this.y + 25 > player.room.walls[i].y1){
+      if (x - this.width/2 - this.margin < this.room.walls[i].x2 && x + this.width/2 + this.margin > player.room.walls[i].x1 && this.y - this.height/2 - this.margin < player.room.walls[i].y2 && this.y + this.height/2 + this.margin > player.room.walls[i].y1){
         //don't move into wall
         this.vel.x = 0;
-
-        //go as far as you can though
-        if (this.x > player.room.walls[i].x1+(player.room.walls[i].x2-player.room.walls[i].x1)/2){
-          this.x = player.room.walls[i].x2 + 25;
-        }
-        else{
-          this.x = player.room.walls[i].x1 - 25;
-        }
       }
       //if moving into wall on y axis
-      if (this.x - 25 < player.room.walls[i].x2 && this.x + 25 > player.room.walls[i].x1 && y - 25 < player.room.walls[i].y2 && y + 25 > player.room.walls[i].y1){
+      if (this.x - this.width/2 - this.margin < player.room.walls[i].x2 && this.x + this.width/2 + this.margin > player.room.walls[i].x1 && y - this.height/2 - this.margin < player.room.walls[i].y2 && y + this.height/2 + this.margin > player.room.walls[i].y1){
         //don't move into wall
         this.vel.y = 0;
-
-        //go as far as you can though
-        if (this.y > player.room.walls[i].y1+(player.room.walls[i].y2-player.room.walls[i].y1)/2){
-          this.y = player.room.walls[i].y2 + 25;
-        }
-        else{
-          this.y = player.room.walls[i].y1 - 25;
-        }
       }
     }
 
@@ -164,11 +185,42 @@ class Player{
     //check what rooms player should be showing
     this.render_rooms = [];
     for (let i = 0; i < rooms.length; i++){
+      //get distance between player and room
       let dx = Math.abs(this.x-rooms[i].x*1000);
       let dy = Math.abs(this.y-rooms[i].y*1000);
+      //if room is within 3000 pixels on both axis
       if (dx <= 3000 && dy <= 3000){
+        //if room is in the same area as the player
         if (rooms[i].home == this.room.home){
+          //show the room
           this.render_rooms.push(rooms[i]);
+        }
+      }
+    }
+
+    //make sure there is always rooms around the player
+    for (let x = 0; x < 5; x++){
+      for (let y = 0; y < 5; y++){
+        //x relative to where the player is
+        let rx = this.room.x+x-2;
+        //y relative to where the player is
+        let ry = this.room.y+y-2;
+        //has the room been already generated
+        let a_gened = false;
+        //go through rooms
+        for (let i = 0; i < rooms.length;i++){
+          //if room is in the same spot
+          if (rooms[i].x == rx && rooms[i].y == ry){
+            //the room has already been generated
+            a_gened = true;
+          }
+        }
+        //if the room hasn't been already generated
+        if (!a_gened){
+          //pick a room from level data
+          let level = Math.floor(Math.random()*level_data.dungeon_levels.length);
+          //create a room with that floorplan
+          rooms.push(new Room(rx,ry,JSON.parse(JSON.stringify(level_data.dungeon_levels))[level]));
         }
       }
     }
@@ -178,6 +230,7 @@ class Player{
       //if the weapon can be used
       if (time > this.weapon.cooldown){
         //use it
+        this.swinging = true;
         this.attack();
         this.weapon.cooldown = time+this.weapon.speed*200;
       }
@@ -289,13 +342,56 @@ class Player{
   render(cam){
     //get the position that the camera sees
     let x = this.x - cam.x + canvas.width/2;
-    let y = this.y - cam.y + canvas.height/2;
+    let y = this.y - this.height/2 - cam.y + canvas.height/2;
+
+    //draw torch light
+    for (let i = 0; i < 100; i ++){
+      c.beginPath();
+      c.fillStyle = 'rgba(0,209,181,'+this.torch/i+')';
+      c.arc(x,y,300*i/50,0,Math.PI*2);
+      c.fill();
+    }
+    let nt = (Math.random()-.5)/75;
+    if (this.torch + nt > .05 && this.torch + nt < .2){
+      this.torch += nt;
+    }
+    else{
+      this.torch -= nt;
+    }
 
     //draw the player
-    c.beginPath();
-    c.fillStyle = 'blue';
-    c.rect(x-25,y-25,50,50);
-    c.fill();
+    if (this.walking){
+      c.drawImage(this.images[this.dir-1][this.leg_animation],x-this.width,y-this.height,this.width*2,this.height*2);
+      if (this.animation_cooldown < time){
+        this.animation_cooldown = time + 100;
+        if (this.leg_animation == 1){
+          this.leg_animation = 0;
+        }
+        else{
+          this.leg_animation = 1;
+        }
+      }
+    }
+    else{
+      c.drawImage(this.images[this.dir-1][3],x-this.width,y-this.height,this.width*2,this.height*2);
+    }
+
+    if (this.swinging){
+      let width = ((this.width*2)/this.images[this.dir-1][2].width)*this.images[this.dir-1][4][this.arm].width;
+      let height = ((this.height*2)/this.images[this.dir-1][2].height)*this.images[this.dir-1][4][this.arm].height;
+      c.drawImage(this.images[this.dir-1][4][this.arm],x-this.width,y-this.height,this.width*2,this.height*2);
+      if (time > this.arm_cooldown){
+        this.arm_cooldown = time + 25;
+        this.arm += 1;
+        if (this.arm > 3){
+          this.swinging = false;
+          this.arm = 0;
+        }
+      }
+    }
+    else{
+      c.drawImage(this.images[this.dir-1][2],x-this.width,y-this.height,this.width*2,this.height*2);
+    }
   }
 }
 
@@ -369,6 +465,10 @@ class Enemy{
     this.x = x;
     this.y = y;
 
+    //enemy size
+    this.width = 50;
+    this.height = 50;
+
     //initialize velocity
     this.vel = {
       x: 0,
@@ -397,6 +497,23 @@ class Enemy{
       x:this.x,
       y:this.y,
     }
+
+    //pngs images of the mobile enemy
+    this.images = [[document.getElementById("enemy back 1"),document.getElementById('enemy back 2'),document.getElementById('enemy back')],
+    [document.getElementById("enemy front 1"),document.getElementById('enemy front 2'),document.getElementById('enemy front')],
+    [document.getElementById("enemy left 1"),document.getElementById('enemy left 2'),document.getElementById('enemy left')],
+    [document.getElementById("enemy right 1"),document.getElementById('enemy right 2'),document.getElementById('enemy right')]];
+
+    //the direction the enemy is moving in
+    this.dir = 2;
+
+    //keep track of animation frame
+    this.animation = 0;
+    //only change animation after animation cooldown
+    this.animation_cooldown = time + 200;
+
+    //is enemy walking
+    this.walking = false;
   }
 
   //update the enemy
@@ -404,6 +521,55 @@ class Enemy{
     //update position based on velocity
     this.x += this.vel.x * dt;
     this.y += this.vel.y * dt;
+
+
+    //choose way of messure direction based on if mobile or not
+    //if this is a mobile enemy
+    if (this.mobile){
+      //set x and y to velocity
+      var x = this.vel.x;
+      var y = this.vel.y;
+    }
+    //if a stationary enemy
+    else{
+      //set x and y to distance from player
+      var x = player.x-this.x;
+      var y = player.y-this.y;
+    }
+
+    //find direction of enemy
+    if (Math.abs(x) > Math.abs(y)){
+      //if moving right
+      if (x > 0){
+        //set direction to right
+        this.dir = 4;
+      }
+      //if moving left
+      else{
+        //set direction to left
+        this.dir = 3;
+      }
+    }
+    else{
+      //if moving down
+      if (y < 0){
+        //set direction to down
+        this.dir = 1;
+      }
+      //if moving up
+      else{
+        //set direction to up
+        this.dir = 2;
+      }
+    }
+
+    //check if enemy is walking
+    if (this.vel.x != 0 || this.vel.y != 0){
+      this.walking = true;
+    }
+    else{
+      this.walking = false;
+    }
 
     //get distance from player on each axis
     let dx = this.x - player.x;
@@ -507,40 +673,6 @@ class Enemy{
         this.vel.x = -this.vel.x;
         this.vel.y = -this.vel.y;
       }
-
-      //get the position the enemy will be in on the next frame
-      x = this.x + this.vel.x*dt;
-      y = this.y + this.vel.y*dt;
-
-      //check if moving into a wall
-      for (let i = 0; i < player.room.walls.length; i++){
-        //if moving into wall on x axis
-        if (x - 25 < player.room.walls[i].x2 && x + 25 > player.room.walls[i].x1 && this.y - 25 < player.room.walls[i].y2 && this.y + 25 > player.room.walls[i].y1){
-          //don't move into a wall
-          this.vel.x = 0;
-
-          //get as close as you can though
-          if (this.x > player.room.walls[i].x1+(player.room.walls[i].x2-player.room.walls[i].x1)/2){
-            this.x = player.room.walls[i].x2 + 25;
-          }
-          else{
-            this.x = player.room.walls[i].x1 - 25;
-          }
-        }
-        //if moving into wall on y axis
-        if (this.x - 25 < player.room.walls[i].x2 && this.x + 25 > player.room.walls[i].x1 && y - 25 < player.room.walls[i].y2 && y + 25 > player.room.walls[i].y1){
-          //don't move into a wall
-          this.vel.y = 0;
-
-          //get as close as you can though
-          if (this.y > player.room.walls[i].y1+(player.room.walls[i].y2-player.room.walls[i].y1)/2){
-            this.y = player.room.walls[i].y2 + 25;
-          }
-          else{
-            this.y = player.room.walls[i].y1 - 25;
-          }
-        }
-      }
     }
     //if shouldn't be moving stop it
     else{
@@ -616,15 +748,26 @@ class Enemy{
     let y = this.y - cam.y + canvas.height/2;
 
     //draw the enemy
-    c.beginPath();
-    c.fillStyle = 'red';
-    c.rect(x-25,y-25,50,50);
-    c.fill();
+    if (!this.walking){
+      c.drawImage(this.images[this.dir-1][2],x-this.width,y-this.height,this.width*2,this.height*2);
+    }
+    else{
+      c.drawImage(this.images[this.dir-1][this.animation],x-this.width,y-this.height,this.width*2,this.height*2);
+      if (time > this.animation_cooldown){
+        this.animation_cooldown = time+200;
+        if (this.animation == 1){
+          this.animation = 0;
+        }
+        else{
+          this.animation = 1;
+        }
+      }
+    }
 
     //if recently damaged
     if (this.show_health){
       //display health
-      progress_bar(this.health,this.max_health, x-25, y-35, 50, 5, '#BB0000', '#000000')
+      progress_bar(this.health,this.max_health, x-this.width/2, y-(this.height/2+10), this.width, this.height/10, '#BB0000', '#000000')
     }
   }
 }
@@ -697,6 +840,12 @@ class Wall{
     this.y1 = Math.min(y1,y2);
     this.x2 = Math.max(x1,x2);
     this.y2 = Math.max(y1,y2);
+
+    //image
+    this.image = document.getElementById('Dungeon Wall')
+
+    //how much to rotate image
+    this.img_rotation = Math.PI/2 * Math.floor(Math.random()*4);
   }
 
   //show where wall is
@@ -708,14 +857,11 @@ class Wall{
     let height = this.y2-this.y1;
 
     //draw the wall
-    c.beginPath();
-    c.fillStyle = 'gray';
-    c.rect(x,y,width,height);
-    c.fill();
-    c.beginPath();
-    c.strokeStyle = 'gray';
-    c.rect(x,y,width,height);
-    c.stroke();
+    c.translate(x+width/2,y+height/2);
+    c.rotate(this.img_rotation);
+    c.translate(-(x+width/2),-(y+height/2));
+    c.drawImage(this.image,x,y,width,height);
+    c.setTransform(1,0,0,1,0,0)
   }
 }
 
@@ -795,6 +941,14 @@ class Room{
         }
       }
     }
+  }
+  //show the floor
+  render(cam){
+    //get the position that the camera sees
+    let x = this.x*1000 - 525 - cam.x + canvas.width/2;
+    let y = this.y*1000 - 525 - cam.y + canvas.height/2;
+
+    c.drawImage(dungeon_floor,x,y)
   }
 }
 
@@ -957,6 +1111,9 @@ class Chest{
 
       //chest "speech bubble"
       this.text = '';
+
+      //chest image
+      this.img = document.getElementById('chest');
     }
 
     //update the chest
@@ -1000,10 +1157,7 @@ class Chest{
       let y = this.y - cam.y + canvas.height/2;
 
       //draw the chest
-      c.beginPath();
-      c.fillStyle = 'brown';
-      c.rect(x-25,y-25,50,50);
-      c.fill();
+      c.drawImage(this.img,x-25,y-25,50,50);
 
       //show the "speech bubble"
       c.fillStyle = 'black';
@@ -1124,7 +1278,7 @@ function purchase_weapon(args){
   //if player doesn't have enough money
   else{
     //tell them they don't have enough money
-    msg = "You don't have enough money! Explore the dungeon and loot chests to find some!"\
+    msg = "You don't have enough money! Explore the dungeon and loot chests to find some!"
     //only for two seconds
     msg_timer = time+2000;
   }
@@ -1182,10 +1336,13 @@ function gameloop(){
   dt = date.getTime() - time;
   time = date.getTime();
 
-  //update player and render player
-  player.update(dt);
-  player.render(camera);
-  //display player healt
+  //display floor
+  player.room.render(camera);
+  //loop through all rooms that should have a floor
+  for (let i = 0; i < player.render_rooms.length; i++){
+    //show floor
+    player.render_rooms[i].render(camera)
+  }
 
   //update and display all enemies
   for (let i=0;i<player.room.enemies.length;i++){
@@ -1269,6 +1426,10 @@ function gameloop(){
     }
   }
 
+  //update player and render player
+  player.update(dt);
+  player.render(camera);
+
   //go through players weapons
   for (let i = 0; i < player.weapons.length; i++){
     //show weapons they have
@@ -1303,8 +1464,8 @@ function gameloop(){
   //if escape is press
   if (keys.includes('Escape')){
     //return home
-    player.x = 0;
-    player.y = 0;
+    //player.x = 0;
+    //player.y = 0;
   }
 
   //if still on same scene
@@ -1525,23 +1686,23 @@ function get_levels(){
       },
       dungeon_levels: [
         {map:[[4,4,4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,4,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [4,0,6,0,0,0,0,0,0,0,0,0,0,0,4,0,0,5,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
               [4,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-              [4,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
               [4,4,4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,4,4]],
           home: false
@@ -1611,6 +1772,9 @@ var projectiles = [];
 
 //scene that is currently being displayed
 var scene = 'game';
+
+//dungeon floor png
+var dungeon_floor = document.getElementById('dungeon floor');
 
 //initialize the game loop
 gameloop();

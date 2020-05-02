@@ -157,7 +157,9 @@ function pathfind(map){
         break;
       }
     }
-    final_nodes.push(nodes[0]);
-    return final_nodes
+    if (nodes.length > 0){
+      final_nodes.push(nodes[0]);
+      return final_nodes
+    }
   }
 }

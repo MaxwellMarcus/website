@@ -36,7 +36,9 @@ class Player{
     };
 
     //initialize player health
-    this.health = 10;
+    this.health = 15;
+
+    this.regen_cooldown = time + 5000;
 
     //store maximum player health
     this.max_health = this.health;
@@ -67,13 +69,13 @@ class Player{
     }
 
     //amount of money player has
-    this.money = 100;
+    this.money = 0;
 
     //direction the player is facing
     this.dir = 1;
 
     //all the weapons the player has
-    this.weapons = [new Weapon(1,2,100,true,'Butter Knife')];
+    this.weapons = [new Weapon(1,2,100,false,'Butter Knife')];
     //the weapon the player is currently using
     this.weapon = this.weapons[0];
 
@@ -100,7 +102,7 @@ class Player{
     this.torch = .2;
 
     //distance between walls and player hitbox
-    this.margin = 10;
+    this.margin = -10;
   }
 
   //update the player
@@ -170,6 +172,22 @@ class Player{
       if (this.x - this.width/2 - this.margin < player.room.walls[i].x2 && this.x + this.width/2 + this.margin > player.room.walls[i].x1 && y - this.height/2 - this.margin < player.room.walls[i].y2 && y + this.height/2 + this.margin > player.room.walls[i].y1){
         //don't move into wall
         this.vel.y = 0;
+      }
+    }
+
+    //check if moving into a wall
+    for (let l = 0; l < this.render_rooms.length; l++){
+      for (let i = 0; i < this.render_rooms[l].walls.length; i++){
+        //if moving into wall on x axis
+        if (x - this.width/2 - this.margin < this.render_rooms[l].walls[i].x2 && x + this.width/2 + this.margin > player.render_rooms[l].walls[i].x1 && this.y - this.height/2 - this.margin < player.render_rooms[l].walls[i].y2 && this.y + this.height/2 + this.margin > player.render_rooms[l].walls[i].y1){
+          //don't move into wall
+          this.vel.x = 0;
+        }
+        //if moving into wall on y axis
+        if (this.x - this.width/2 - this.margin < player.render_rooms[l].walls[i].x2 && this.x + this.width/2 + this.margin > player.render_rooms[l].walls[i].x1 && y - this.height/2 - this.margin < player.render_rooms[l].walls[i].y2 && y + this.height/2 + this.margin > player.render_rooms[l].walls[i].y1){
+          //don't move into wall
+          this.vel.y = 0;
+        }
       }
     }
 
@@ -277,6 +295,13 @@ class Player{
         this.weapon = this.weapons[7]
       }
     }
+
+    if (time > this.regen_cooldown){
+      if (this.health < this.max_health){
+        this.health += 1;
+      }
+      this.regen_cooldown = time + 5000;
+    }
   }
 
   //make player take damage
@@ -324,16 +349,16 @@ class Player{
     if (!this.weapon.melee){
       //shoot in the direction the player is facing
       if (this.dir == 1){
-        projectiles.push(new Projectile(this.x,this.y-50,{x:0,y:-1},this.weapon.damage));
+        projectiles.push(new Projectile(this.x,this.y-this.height,{x:0,y:-1},this.weapon.damage,'green',this));
       }
       if (this.dir == 2){
-        projectiles.push(new Projectile(this.x,this.y+50,{x:0,y:1},this.weapon.damage));
+        projectiles.push(new Projectile(this.x,this.y+this.height,{x:0,y:1},this.weapon.damage,'green',this));
       }
       if (this.dir == 3){
-        projectiles.push(new Projectile(this.x-50,this.y,{x:-1,y:0},this.weapon.damage));
+        projectiles.push(new Projectile(this.x-this.width,this.y,{x:-1,y:0},this.weapon.damage,'green',this));
       }
       if (this.dir == 4){
-        projectiles.push(new Projectile(this.x+50,this.y,{x:1,y:0},this.weapon.damage));
+        projectiles.push(new Projectile(this.x+this.width,this.y,{x:1,y:0},this.weapon.damage,'green',this));
       }
     }
   }
@@ -522,7 +547,6 @@ class Enemy{
     this.x += this.vel.x * dt;
     this.y += this.vel.y * dt;
 
-
     //choose way of messure direction based on if mobile or not
     //if this is a mobile enemy
     if (this.mobile){
@@ -581,7 +605,7 @@ class Enemy{
     //only move if enemy is mobile and not at the player
     if (this.mobile && (Math.abs(dx) > 50 || Math.abs(dy) > 50)){
       //only choose new location to move to if at the current location
-      if (Math.abs(this.x-this.move_location.x) < 5 && Math.abs(this.y-this.move_location.y) < 5){
+      if (Math.abs(this.x-this.move_location.x) < Math.max(Math.abs(this.vel.x*dt),5) && Math.abs(this.y-this.move_location.y) < Math.max(Math.abs(this.vel.y*dt),5)){
         //get the coords for everything inside of the room
         let room_x = (Math.round(this.x/50)-(player.room.x*20)) + 10;
         let room_y = (Math.round(this.y/50)-(player.room.y*20)) + 10;
@@ -648,12 +672,17 @@ class Enemy{
         if (p != null){
           //get the next move toward the player
           let n = p[p.length-1];
-          while (n.prev_node.type != 2){
-            n = n.prev_node;
+          try {
+            while (n.prev_node.type != 2){
+              n = n.prev_node;
+            }
+            //set the location the enemy is trying to go to to the next move
+            this.move_location.x = (n.x-10)*50+(player.room.x*1000);
+            this.move_location.y = (n.y-10)*50+(player.room.y*1000);
           }
-          //set the location the enemy is trying to go to to the next move
-          this.move_location.x = (n.x-10)*50+(player.room.x*1000);
-          this.move_location.y = (n.y-10)*50+(player.room.y*1000);
+          catch{
+            console.log('No path found');
+          }
         }
       }
 
@@ -737,7 +766,7 @@ class Enemy{
     }
     else{
       //create a new projectile
-      projectiles.push(new Projectile(this.x+vel.x*60,this.y+vel.y*60,vel));
+      projectiles.push(new Projectile(this.x+vel.x*60,this.y+vel.y*60,vel,1,'red',this));
     }
   }
 
@@ -773,23 +802,32 @@ class Enemy{
 }
 
 class Projectile{
-  constructor(x,y,vel,damage=1){
+  constructor(x,y,vel,damage=1,color='green',parent){
     //store position
     this.x = x;
     this.y = y;
+
+    this.parent = parent;
 
     //store velocity
     this.vel = vel;
 
     //store damage
     this.damage = damage;
+
+    //image for spell and spell trail
+    this.image = document.getElementById('spell '+color);
+    this.trail_image = document.getElementById('spell trail ' + color);
+
+    this.trail = [];
+
   }
 
   //update the projectile
   update(dt){
     //check if any enemies
     for (let i=0;i<player.room.enemies.length;i++){
-        if (Math.abs(this.x-player.room.enemies[i].x) < 50 && Math.abs(this.y-player.room.enemies[i].y) < 50){
+        if (Math.abs(this.x-player.room.enemies[i].x) < 50 && Math.abs(this.y-player.room.enemies[i].y) < 50 && player.room.enemies[i] != this.parent){
           //damage hit enemy
           player.room.enemies[i].damage(this.damage);
           //remove projectile
@@ -807,11 +845,32 @@ class Projectile{
     }
 
     //check if hit player
-    if (Math.abs(this.x-player.x) < 50 && Math.abs(this.y-player.y) < 50){
+    if (Math.abs(this.x-player.x) < 50 && Math.abs(this.y-player.y) < 50 && player != this.parent){
       //damage player
       player.damage(this.damage);
       //remove projectile
       projectiles.splice(projectiles.indexOf(this),1);
+    }
+
+
+    var t = {
+      x:Math.floor(this.x/8)*8,
+      y:Math.floor(this.y/8)*8
+    };
+
+    let in_list = false;
+    for (let i = 0; i < this.trail.length; i++){
+      if (this.trail[i].x == t.x && this.trail[i].y == t.y){
+        in_list = true;
+      }
+    }
+    if (!in_list){
+      t.x = this.x;
+      t.y = this.y;
+      this.trail.push(t);
+      if (this.trail.length > 15){
+        this.trail.splice(0,1);
+      }
     }
 
     //update projectile position
@@ -825,11 +884,49 @@ class Projectile{
     let x = this.x - cam.x + canvas.width/2;
     let y = this.y - cam.y + canvas.height/2;
 
+    //draw the trail
+    for (let i = 0; i < 6; i++){
+      let a = Math.atan(this.vel.x/-this.vel.y);
+
+      let tx = Math.sin(a) * 16 * i;
+      let ty = Math.cos(a) * 16 * i;
+
+      if (-this.vel.y > 0){
+        tx = -tx;
+        ty = -ty;
+      }
+
+      tx = this.x + tx;
+      ty = this.y - ty;
+
+      tx = tx - cam.x + canvas.width/2;
+      ty = ty - cam.y + canvas.height/2;
+
+      c.translate(tx,ty);
+      c.rotate(a);
+      c.translate(-tx,-ty);
+
+      c.drawImage(this.trail_image,tx-8,ty-8,16,16);
+
+      c.resetTransform()
+    }
+
+    let a = Math.atan(this.vel.x/this.vel.y);
+    if (this.vel.y > 0){
+      a = (-(a - Math.PI/2))+Math.PI/2;
+    }
+    else if (this.vel.y < 0){
+      a = (-(a - Math.PI))+Math.PI;
+    }
+
+    c.translate(x,y)
+    c.rotate(a);
+    c.translate(-x,-y);
+
     //draw the projectile
-    c.beginPath();
-    c.fillStyle = 'black';
-    c.rect(x-10,y-10,20,20);
-    c.fill();
+    c.drawImage(this.image,x-10,y-10,20,20);
+
+    c.resetTransform();
   }
 }
 
@@ -1542,239 +1639,124 @@ function buy_weapons(){
 }
 
 //get room data
-function get_levels(){
-  return   {
-      home_levels: {
-        home:{
-          map:[[4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
-           home: true
-        },
-        weapon_smith:{
-          map:[[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4]],
-           home: true
-        },
-        armor_smith:{
-          map:[[4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]],
-           home: true
-        },
-        wizard:{
-          map:[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]],
-           home: true
-        },
-        entrance:{
-          map:[[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]],
-           home: true
-        },
-        boss_entrance:{
-          map:[[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-               [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4]],
-           home: true
-        }
-      },
-      dungeon_levels: [
-        {map:[[4,4,4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,4,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [4,0,6,0,0,0,0,0,0,0,0,0,0,0,4,0,0,5,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-              [4,4,4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,4,4]],
-          home: false
-        }
-      ]
+async function get_levels(){
+  return fetch('level_data.json')
+  .then(function(data){
+      console.log('recieved data...');
+      console.log(data)
+      console.log('converting to JavaScript Object...');
+      return data.json();
+    })
+    .then(
+    function(data){
+      got_level_data = true;
+      console.log('converted data...');
+      console.log(data);
+      console.log('starting...')
+      level_data = data;
     }
+  );
 }
 
-//access level data
-var level_data = get_levels();
 
-//all of the rooms in the map
-rooms = [
-  new Room(0,0,JSON.parse(JSON.stringify(level_data.home_levels.home))),
-  new Room(1,0,JSON.parse(JSON.stringify(level_data.home_levels.armor_smith))),
-  new Room(0,1,JSON.parse(JSON.stringify(level_data.home_levels.weapon_smith))),
-  new Room(1,1,JSON.parse(JSON.stringify(level_data.home_levels.wizard))),
-  new Room(0,-1,JSON.parse(JSON.stringify(level_data.home_levels.entrance))),
-  new Room(-1,0,JSON.parse(JSON.stringify(level_data.home_levels.boss_entrance)))
-]
-//go through number of rooms there should be
-for (let x = 0; x < 20; x++){
-  for (let y = 0; y < 20; y++){
-    //is there already a room there
-    let taken = false;
-    //go through current rooms
-    for (let i = 0; i < rooms.length; i++){
-      //if room in same spot
-      if (rooms[i].x == x-10 && rooms[i].y == y-10){
-        //there is a room there
-        taken = true;
+function loading(){
+  c.clearRect(0,0,canvas.width,canvas.height);
+
+  c.textAlign = 'center';
+  c.fillStyle = 'pink';
+  c.fillText('Loading...', canvas.width/2,canvas.height/2);
+
+  if (!got_level_data){
+    requestAnimationFrame(loading);
+  }
+  else{
+    //all of the rooms in the map
+    rooms = [
+      new Room(0,0,JSON.parse(JSON.stringify(level_data.home_levels.home))),
+      new Room(1,0,JSON.parse(JSON.stringify(level_data.home_levels.armor_smith))),
+      new Room(0,1,JSON.parse(JSON.stringify(level_data.home_levels.weapon_smith))),
+      new Room(1,1,JSON.parse(JSON.stringify(level_data.home_levels.wizard))),
+      new Room(0,-1,JSON.parse(JSON.stringify(level_data.home_levels.entrance))),
+      new Room(-1,0,JSON.parse(JSON.stringify(level_data.home_levels.boss_entrance))),
+      new Room(0,-2,JSON.parse(JSON.stringify(level_data.home_levels.boss_entrance))),
+      new Room(-1,-2,JSON.parse(JSON.stringify(level_data.home_levels.boss_entrance))),
+      new Room(-1,-1,JSON.parse(JSON.stringify(level_data.home_levels.boss_entrance)))
+
+    ]
+    //go through number of rooms there should be
+    for (let x = 0; x < 20; x++){
+      for (let y = 0; y < 20; y++){
+        //is there already a room there
+        let taken = false;
+        //go through current rooms
+        for (let i = 0; i < rooms.length; i++){
+          //if room in same spot
+          if (rooms[i].x == x-10 && rooms[i].y == y-10){
+            //there is a room there
+            taken = true;
+          }
+        }
+        //if there is not a room in same spot
+        if (taken == false){
+          //pick a room from level data
+          let level = Math.floor(Math.random()*level_data.dungeon_levels.length);
+          console.log(level)
+          //create a room with that floorplan
+          rooms.push(new Room(x-10,y-10,JSON.parse(JSON.stringify(level_data.dungeon_levels))[level]));
+        }
       }
     }
-    //if there is not a room in same spot
-    if (taken == false){
-      //pick a room from level data
-      let level = Math.floor(Math.random()*level_data.dungeon_levels.length);
-      //create a room with that floorplan
-      rooms.push(new Room(x-10,y-10,JSON.parse(JSON.stringify(level_data.dungeon_levels))[level]));
-    }
+
+    //all of the buttons to buy weapons
+    weapon_buttons = [
+      new Button(300,200,500,400,purchase_weapon,{damage:2,speed:2,range:100,melee:true,price:50,name:'Sword'}),
+      new Button(300,500,500,700,purchase_weapon,{damage:2,speed:1,range:50,melee:true,price:75,name:'Knife'}),
+      new Button(300,800,500,1000,purchase_weapon,{damage:6,speed:4,range:200,melee:true,price:100,name:'Axe'}),
+      new Button(canvas.width-500,200,canvas.width-300,400,purchase_weapon,{damage:1,speed:2,range:100,melee:false,price:50,name:'Ninja Stars'}),
+      new Button(canvas.width-500,500,canvas.width-300,700,purchase_weapon,{damage:2,speed:2,range:100,melee:false,price:75,name:'Throwing Knife'}),
+      new Button(canvas.width-500,800,canvas.width-300,1000,purchase_weapon,{damage:5,speed:3,range:100,melee:false,price:100,name:'Crossbow'}),
+      new Button(canvas.width/2-100,200,canvas.width/2+100,400,purchase_weapon,{damage:5,speed:3,range:100,melee:100,price:150,name:'Throwing Axe'})
+    ];
+
+    //message
+    msg = '';
+    msg_timer = null;
+
+    //initialize player class
+    player = new Player();
+
+    //initialize camera class
+    camera = new Camera();
+
+    //initialize the projectiles list
+    projectiles = [];
+
+    //scene that is currently being displayed
+    scene = 'game';
+
+    //dungeon floor png
+    dungeon_floor = document.getElementById('dungeon floor');
+
+    //initialize the game loop
+    gameloop();
   }
 }
 
-//all of the buttons to buy weapons
-var weapon_buttons = [
-  new Button(300,200,500,400,purchase_weapon,{damage:2,speed:2,range:100,melee:true,price:50,name:'Sword'}),
-  new Button(300,500,500,700,purchase_weapon,{damage:2,speed:1,range:50,melee:true,price:75,name:'Knife'}),
-  new Button(300,800,500,1000,purchase_weapon,{damage:6,speed:4,range:200,melee:true,price:100,name:'Axe'}),
-  new Button(canvas.width-500,200,canvas.width-300,400,purchase_weapon,{damage:1,speed:2,range:100,melee:false,price:50,name:'Ninja Stars'}),
-  new Button(canvas.width-500,500,canvas.width-300,700,purchase_weapon,{damage:2,speed:2,range:100,melee:false,price:75,name:'Throwing Knife'}),
-  new Button(canvas.width-500,800,canvas.width-300,1000,purchase_weapon,{damage:5,speed:3,range:100,melee:false,price:100,name:'Crossbow'}),
-  new Button(canvas.width/2-100,200,canvas.width/2+100,400,purchase_weapon,{damage:5,speed:3,range:100,melee:100,price:150,name:'Throwing Axe'})
-];
 
-//message
+
+var rooms = null;
+var weapon_buttons = null;
 var msg = '';
 var msg_timer = null;
+var player = null;
+var camera = null;
+var projectiles = null;
+var scene = 'loading';
+var dungeon_floor = null;
 
-//initialize player class
-var player = new Player();
+//access level data
+var got_level_data = false;
+var level_data = null;
+get_levels();
 
-//initialize camera class
-var camera = new Camera();
-
-//initialize the projectiles list
-var projectiles = [];
-
-//scene that is currently being displayed
-var scene = 'game';
-
-//dungeon floor png
-var dungeon_floor = document.getElementById('dungeon floor');
-
-//initialize the game loop
-gameloop();
+loading();

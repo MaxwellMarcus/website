@@ -26,11 +26,23 @@ body{
 
 .MenuButtons{
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 
   font-size: 25px;
   font-family: sans-serif;
   font-weight: bolder;
+}
+
+.OtherBlogs{
+  padding-right: 50px;
+  padding-top: 20px;
+
+  align-self: center;
+  text-align: center;
+
+  text-decoration: none;
+  color: #5E5E5E
+
 }
 
 .BlogButton{
@@ -76,6 +88,9 @@ body{
   color: #7E7E7E;
 }
 .ProjectsButton:hover{
+  color: #7E7E7E;
+}
+.OtherBlogs:hover{
   color: #7E7E7E;
 }
 

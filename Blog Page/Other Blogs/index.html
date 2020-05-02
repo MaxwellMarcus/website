@@ -3,7 +3,7 @@
 <head>
   <link rel="stylesheet" href="stylesheet.css">
   <meta charset="utf-8">
-  <title>Max Marcus - Blog</title>
+  <title>Max Marcus - Projects</title>
   <link rel="icon" type="image/png" href="favcon.png">
   <script>
     function place_menu_bar(){
@@ -23,7 +23,7 @@
       }
     }
     window.onresize = place_menu_bar;
-</script>
+  </script>
 </head>
 <body>
   <div class="MenuBar">
@@ -36,11 +36,27 @@
       <a type='button' class="ProjectsButton" href="https://maxmarc.us/Projects">Projects</a>
       <a type='button' class="GamesButton" href="https://maxmarc.us/Games">Games</a>
       <a type='button' class="BlogButton" href="https://maxmarc.us/Blog">Blog</a>
-      <a type='button' class='OtherBlogs' href="https://maxmarc.us/OtherBlogs">Other Blogs</a>
     </div>
+  </div>
+
+  <div class="ProjectsList">
+
+    <a href='Hello World' style='display:block;text-decoration:none' class='Blog'>
+      <img src="Hello World/imgs/thumbnail.png" alt="A* Algorithm" class='Thumbnail'>
+      <p class='Title'>Hello World!</p>
+      <p class='Date'>Date: 4/24/2020</p>
+    </a>
+
+    <a href='Game Announcement' style='display:block;text-decoration:none' class='Blog'>
+      <img src="Game Announcement/imgs/thumbnail.png" alt="A* Algorithm" class='Thumbnail'>
+      <p class='Title'>Game Announcement!</p>
+      <p class='Date'>Date: 4/29/2020</p>
+    </a>
+
   </div>
 
   <script>
     place_menu_bar();
   </script>
+
 </body>
